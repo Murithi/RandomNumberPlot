@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <h2>Random Number Line Graph</h2>
+    <div id="graph"></div>
+  </body>
+  <script>
+    var socket = new WebSocket("ws://" + window.location.host + "/random/");
+    Plotly.plot("graph", [
+      {
+        y: [0]
+      }
+    ]);
+    socket.onopen = function open() {
+      console.log("WebSockets connection created.");
+      socket.send("start");
+    };
+
+    socket.onmessage = function message(event) {
+      console.log("data from socket:" + event.data);
+
+      Plotly.extendTraces(
+        "graph",
+        {
+          y: [[event.data]]
+        },
+        [0]
+      );
+    };
+
+    if (socket.readyState == WebSocket.OPEN) {
+      socket.onopen();
+    }
+  </script>
+</html>
